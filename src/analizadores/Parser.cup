@@ -1,0 +1,8 @@
+terminal MAGE;
+terminal WARRIOR;
+terminal INITIAL;
+terminal RULES;
+
+terminal IF;
+terminal THEN;
+terminal ELSE;

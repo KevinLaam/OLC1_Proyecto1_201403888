@@ -70,4 +70,21 @@
     nbproject/build-impl.xml file. 
 
     -->
+    <target name="-pre-compile">
+
+    <echo message="========== Generando Lexer con JFlex =========="/>
+
+    <taskdef
+        name="jflex"
+        classname="jflex.anttask.JFlexTask"
+        classpath="${file.reference.jflex-full-1.9.1.jar}"
+    />
+
+    <jflex
+        file="${basedir}/src/analizadores/Lexer.flex"
+        outdir="${basedir}/src/analizadores"
+        verbose="true"
+    />
+
+    </target>
 </project>
