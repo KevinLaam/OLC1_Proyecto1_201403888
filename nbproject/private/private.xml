@@ -3,9 +3,9 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Usuario/Documents/NetBeansProjects/OLC1_Proyecto1_202012345/src/olc1_proyecto1_202012345/OLC1_Proyecto1_202012345.java</file>
-            <file>file:/C:/Users/Usuario/Documents/NetBeansProjects/OLC1_Proyecto1_202012345/build.xml</file>
-            <file>file:/C:/Users/Usuario/Documents/NetBeansProjects/OLC1_Proyecto1_202012345/src/analizadores/Lexer.flex</file>
+            <file>file:/C:/Users/Usuario/Documents/NetBeansProjects/OLC1_Proyecto1_201403888/src/analizadores/Lexer.flex</file>
+            <file>file:/C:/Users/Usuario/Documents/NetBeansProjects/OLC1_Proyecto1_201403888/build.xml</file>
+            <file>file:/C:/Users/Usuario/Documents/NetBeansProjects/OLC1_Proyecto1_201403888/src/analizadores/Parser.cup</file>
         </group>
     </open-files>
 </project-private>

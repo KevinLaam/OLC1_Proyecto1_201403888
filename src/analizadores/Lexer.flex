@@ -42,17 +42,11 @@ COMENTARIO_MULTI = "/*"([^*]|\*+[^*/])*\*+"/"
 /* ---------- PALABRAS RESERVADAS ---------- */
 
 "mage"                  {return symbol(sym.MAGE);}
-
 "warrior"               {return symbol(sym.WARRIOR);}
-
 "initial"               {return symbol(sym.INITIAL);}
-
 "rules"                 {return symbol(sym.RULES);}
-
 "if"                    {return symbol(sym.IF);}
-
 "then"                  {return symbol(sym.THEN);}
-
 "else"                  {return symbol(sym.ELSE);}
 
 /* ---------- PARTIDAS ---------- */
@@ -97,19 +91,14 @@ COMENTARIO_MULTI = "/*"([^*]|\*+[^*/])*\*+"/"
 
 "round_number"        { return symbol(sym.ROUND_NUMBER); }
 "total_rounds"        { return symbol(sym.TOTAL_ROUNDS); }
-
 "self_health"         { return symbol(sym.SELF_HEALTH); }
 "opponent_health"     { return symbol(sym.OPPONENT_HEALTH); }
-
 "self_resource"       { return symbol(sym.SELF_RESOURCE); }
 "opponent_resource"   { return symbol(sym.OPPONENT_RESOURCE); }
-
 "self_score"          { return symbol(sym.SELF_SCORE); }
 "opponent_score"      { return symbol(sym.OPPONENT_SCORE); }
-
 "self_history"        { return symbol(sym.SELF_HISTORY); }
 "opponent_history"    { return symbol(sym.OPPONENT_HISTORY); }
-
 "random"              { return symbol(sym.RANDOM); }
 
 /* ---------- ACCIONES ---------- */
@@ -140,7 +129,12 @@ COMENTARIO_MULTI = "/*"([^*]|\*+[^*/])*\*+"/"
 
 "&&"        { return symbol(sym.AND); }
 "||"        { return symbol(sym.OR); }
-"!="        { return symbol(sym.DIFERENTE); }
+"!"         { return symbol(sym.NOT); }
+
+/* ---------- OPERADORES ARITMETICOS ---------- */
+
+"-"         { return symbol(sym.MENOS); }
+
 
 /* ---------- SIMBOLOS Y SIGNOS DE AGRUPACION ---------- */
 

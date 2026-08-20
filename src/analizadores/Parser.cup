@@ -1,8 +1,469 @@
+package analizadores;
+
+/* =========================================
+                 TERMINALES
+   ========================================= */
+
+/* PALABRAS RESERVADAS */
 terminal MAGE;
 terminal WARRIOR;
 terminal INITIAL;
 terminal RULES;
-
 terminal IF;
 terminal THEN;
 terminal ELSE;
+
+/* PARTIDAS */
+terminal MATCH;
+terminal PLAYERS;
+terminal ROUNDS;
+terminal SCORING;
+terminal BONUSES;
+
+/* PUNTO DE ENTRADA */
+terminal MAIN;
+terminal RUN;
+terminal WITH;
+terminal SEED;
+
+/* SCORING */
+terminal DAMAGE_POINT;
+terminal HEALING_POINT;
+terminal SUCCESSFUL_DEFENSE;
+terminal VICTORY_BONUS;
+terminal FAILED_ACTION_PENALTY;
+
+/* BONUSES */
+terminal MAGE_COMBO;
+terminal MAGE_COMBO_POINTS;
+terminal WARRIOR_COMBO;
+terminal WARRIOR_COMBO_POINTS;
+terminal LOW_HEALTH_VICTORY;
+
+/* FUNCIONES DEL SISTEMA */
+terminal GET_MOVE;
+terminal LAST_MOVE;
+terminal GET_MOVES_COUNT;
+terminal GET_LAST_N_MOVES;
+
+/* ESTADOS DEL SISTEMA */
+terminal ROUND_NUMBER;
+terminal TOTAL_ROUNDS;
+terminal SELF_HEALTH;
+terminal OPPONENT_HEALTH;
+terminal SELF_RESOURCE;
+terminal OPPONENT_RESOURCE;
+terminal SELF_SCORE;
+terminal OPPONENT_SCORE;
+terminal SELF_HISTORY;
+terminal OPPONENT_HISTORY;
+
+terminal RANDOM;
+
+/* ACCIONES */
+terminal ARCANE_BOLT;
+terminal FIREBALL;
+terminal MAGIC_BARRIER;
+terminal HEALING_RUNE;
+terminal MEDITATE;
+terminal SLASH;
+terminal HEAVY_STRIKE;
+terminal SHIELD_BLOCK;
+terminal WAR_CRY;
+terminal REST;
+
+/* OPERADORES DE COMPARACION */
+terminal IGUAL_IGUAL;
+terminal DIFERENTE;
+terminal MAYOR_IGUAL;
+terminal MENOR_IGUAL;
+terminal MAYOR;
+terminal MENOR;
+
+/* OPERADORES ARITMETICOS */
+
+terminal MENOS;
+
+/* OPERADORES BOOLEANOS */
+terminal AND;
+terminal OR;
+terminal NOT;
+
+/* SIMBOLOS */
+terminal LLAVE_A;
+terminal LLAVE_C;
+terminal CORCHETE_A;
+terminal CORCHETE_C;
+terminal PAR_A;
+terminal PAR_C;
+terminal DOS_PUNTOS;
+terminal COMA;
+
+/* VALORES */
+terminal Double DECIMAL;
+terminal Integer ENTERO;
+terminal String ID;
+
+/* =========================================
+                 NO TERMINALES
+   ========================================= */
+
+non terminal inicio;
+
+non terminal lista_estrategias;
+non terminal estrategia;
+non terminal accion;
+non terminal estrategia_mago;
+non terminal estrategia_guerrero;
+non terminal cuerpo_mago;
+non terminal cuerpo_guerrero;
+non terminal accion_mago;
+non terminal accion_guerrero;
+non terminal lista_reglas_mago;
+non terminal lista_reglas_guerrero;
+non terminal regla_mago;
+non terminal regla_guerrero;
+non terminal regla_else_mago;
+non terminal regla_else_guerrero;
+non terminal lista_partidas;
+non terminal condicion;
+non terminal condicion_and;
+non terminal condicion_not;
+non terminal condicion_base;
+non terminal comparacion;
+non terminal valor_numerico;
+non terminal estado_entero;
+non terminal operador_comparacion;
+non terminal funcion_accion;
+non terminal funcion_lista;
+non terminal historial;
+non terminal fuente_historial;
+non terminal funcion_entera;
+non terminal valor_accion;
+non terminal lista_acciones;
+non terminal elementos_acciones;
+non terminal valor_lista;
+non terminal expresion_numerica;
+non terminal partida;
+non terminal cuerpo_partida;
+non terminal jugadores;
+non terminal rondas;
+non terminal scoring;
+non terminal lista_scoring;
+non terminal bonuses;
+non terminal lista_bonuses;
+non terminal lista_acciones_mago;
+non terminal elementos_acciones_mago;
+non terminal lista_acciones_guerrero;
+non terminal elementos_acciones_guerrero;
+non terminal principal;
+non terminal cuerpo_principal;
+non terminal instruccion_run;
+non terminal lista_partidas_run;
+
+start with inicio;
+
+inicio ::=
+      lista_estrategias
+      lista_partidas
+      principal
+;
+
+lista_estrategias ::=
+      lista_estrategias estrategia
+    | estrategia
+;
+
+lista_partidas ::=
+      lista_partidas partida
+    | partida
+;
+
+estrategia ::=
+      estrategia_mago
+    | estrategia_guerrero
+;
+
+estrategia_mago ::=
+      MAGE ID LLAVE_A cuerpo_mago LLAVE_C
+;
+
+estrategia_guerrero ::=
+      WARRIOR ID LLAVE_A cuerpo_guerrero LLAVE_C
+;
+
+cuerpo_mago ::=
+      INITIAL DOS_PUNTOS accion_mago
+      RULES DOS_PUNTOS CORCHETE_A
+      lista_reglas_mago
+      regla_else_mago
+      CORCHETE_C
+;
+
+cuerpo_guerrero ::=
+      INITIAL DOS_PUNTOS accion_guerrero
+      RULES DOS_PUNTOS CORCHETE_A
+      lista_reglas_guerrero
+      regla_else_guerrero
+      CORCHETE_C
+;
+
+accion ::=
+      accion_mago
+    | accion_guerrero
+;
+
+accion_mago ::=
+      ARCANE_BOLT
+    | FIREBALL
+    | MAGIC_BARRIER
+    | HEALING_RUNE
+    | MEDITATE
+;
+
+accion_guerrero ::=
+      SLASH
+    | HEAVY_STRIKE
+    | SHIELD_BLOCK
+    | WAR_CRY
+    | REST
+;
+
+regla_mago ::=
+      IF condicion THEN accion_mago COMA
+;
+
+regla_guerrero ::=
+      IF condicion THEN accion_guerrero COMA
+;
+
+regla_else_mago ::=
+      ELSE accion_mago
+;
+
+regla_else_guerrero ::=
+      ELSE accion_guerrero
+;
+
+lista_reglas_mago ::=
+      lista_reglas_mago regla_mago
+    | regla_mago
+;
+
+lista_reglas_guerrero ::=
+      lista_reglas_guerrero regla_guerrero
+    | regla_guerrero
+;
+
+condicion ::=
+      condicion OR condicion_and
+    | condicion_and
+;
+
+condicion_and ::=
+      condicion_and AND condicion_not
+    | condicion_not
+;
+
+condicion_not ::=
+      NOT condicion_not
+    | condicion_base
+;
+
+condicion_base ::=
+      comparacion
+    | PAR_A condicion PAR_C
+;
+
+operador_comparacion ::=
+      IGUAL_IGUAL
+    | DIFERENTE
+    | MAYOR
+    | MENOR
+    | MAYOR_IGUAL
+    | MENOR_IGUAL
+;
+
+estado_entero ::=
+      ROUND_NUMBER
+    | TOTAL_ROUNDS
+    | SELF_HEALTH
+    | OPPONENT_HEALTH
+    | SELF_RESOURCE
+    | OPPONENT_RESOURCE
+    | SELF_SCORE
+    | OPPONENT_SCORE
+;
+
+valor_numerico ::=
+      estado_entero
+    | ENTERO
+    | RANDOM
+    | DECIMAL
+    | funcion_entera
+;
+
+comparacion ::=
+      expresion_numerica operador_comparacion expresion_numerica
+    | valor_accion IGUAL_IGUAL valor_accion
+    | valor_accion DIFERENTE valor_accion
+    | valor_lista IGUAL_IGUAL valor_lista
+    | valor_lista DIFERENTE valor_lista
+;
+
+historial ::=
+      SELF_HISTORY
+    | OPPONENT_HISTORY
+;
+
+funcion_accion ::=
+      GET_MOVE PAR_A historial COMA ENTERO PAR_C
+    |
+      LAST_MOVE PAR_A historial PAR_C
+;
+
+funcion_lista ::=
+      GET_LAST_N_MOVES
+      PAR_A
+      historial
+      COMA
+      ENTERO
+      PAR_C
+;
+
+fuente_historial ::=
+      historial
+    | funcion_lista
+;
+
+funcion_entera ::=
+      GET_MOVES_COUNT
+      PAR_A
+      fuente_historial
+      COMA
+      accion
+      PAR_C
+;
+
+valor_accion ::=
+      accion
+    | funcion_accion
+;
+
+lista_acciones ::=
+      CORCHETE_A elementos_acciones CORCHETE_C
+;
+
+elementos_acciones ::=
+      elementos_acciones COMA accion
+    | accion
+;
+
+valor_lista ::=
+      lista_acciones
+    | funcion_lista
+;
+
+expresion_numerica ::=
+      expresion_numerica MENOS valor_numerico
+    | valor_numerico
+;
+/* ----------------------------------------PARTIDAS */
+partida ::=
+      MATCH ID LLAVE_A
+      cuerpo_partida
+      LLAVE_C
+;
+
+cuerpo_partida ::=
+      jugadores
+      rondas
+      scoring
+      bonuses
+;
+
+jugadores ::=
+      PLAYERS DOS_PUNTOS
+      CORCHETE_A
+      ID COMA ID
+      CORCHETE_C
+;
+
+rondas ::=
+      ROUNDS DOS_PUNTOS ENTERO
+;
+
+scoring ::=
+      SCORING DOS_PUNTOS
+      LLAVE_A
+      lista_scoring
+      LLAVE_C
+;
+
+bonuses ::=
+      BONUSES DOS_PUNTOS
+      LLAVE_A
+      lista_bonuses
+      LLAVE_C
+;
+
+lista_scoring ::=
+      DAMAGE_POINT DOS_PUNTOS ENTERO COMA
+      HEALING_POINT DOS_PUNTOS ENTERO COMA
+      SUCCESSFUL_DEFENSE DOS_PUNTOS ENTERO COMA
+      VICTORY_BONUS DOS_PUNTOS ENTERO COMA
+      FAILED_ACTION_PENALTY DOS_PUNTOS ENTERO
+;
+
+lista_bonuses ::=
+      MAGE_COMBO DOS_PUNTOS lista_acciones_mago COMA
+      MAGE_COMBO_POINTS DOS_PUNTOS ENTERO COMA
+      WARRIOR_COMBO DOS_PUNTOS lista_acciones_guerrero COMA
+      WARRIOR_COMBO_POINTS DOS_PUNTOS ENTERO COMA
+      LOW_HEALTH_VICTORY DOS_PUNTOS ENTERO
+;
+
+lista_acciones_mago ::=
+      CORCHETE_A elementos_acciones_mago CORCHETE_C
+;
+
+elementos_acciones_mago ::=
+      elementos_acciones_mago COMA accion_mago
+    | accion_mago
+;
+
+lista_acciones_guerrero ::=
+      CORCHETE_A elementos_acciones_guerrero CORCHETE_C
+;
+
+elementos_acciones_guerrero ::=
+      elementos_acciones_guerrero COMA accion_guerrero
+    | accion_guerrero
+;
+/* ----------------------------------------MAIN */
+principal ::=
+      MAIN LLAVE_A
+      cuerpo_principal
+      LLAVE_C
+;
+
+cuerpo_principal ::=
+      cuerpo_principal instruccion_run
+    | instruccion_run
+;
+
+instruccion_run ::=
+      RUN
+      CORCHETE_A
+      lista_partidas_run
+      CORCHETE_C
+      WITH
+      LLAVE_A
+      SEED DOS_PUNTOS ENTERO
+      LLAVE_C
+;
+
+lista_partidas_run ::=
+      lista_partidas_run COMA ID
+    | ID
+;
