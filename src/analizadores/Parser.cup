@@ -1,4 +1,14 @@
 package analizadores;
+import modelo.Estrategia;
+import java.util.LinkedList;
+import modelo.Regla;
+import modelo.Condicion;
+import modelo.CuerpoEstrategia;
+import modelo.Partida;
+import modelo.Scoring;
+import modelo.Bonuses;
+import modelo.CuerpoPartida;
+import modelo.Principal;
 
 /* =========================================
                  TERMINALES
@@ -110,30 +120,30 @@ terminal String ID;
 
 non terminal inicio;
 
-non terminal lista_estrategias;
-non terminal estrategia;
-non terminal accion;
-non terminal estrategia_mago;
-non terminal estrategia_guerrero;
-non terminal cuerpo_mago;
-non terminal cuerpo_guerrero;
-non terminal accion_mago;
-non terminal accion_guerrero;
-non terminal lista_reglas_mago;
-non terminal lista_reglas_guerrero;
-non terminal regla_mago;
-non terminal regla_guerrero;
-non terminal regla_else_mago;
-non terminal regla_else_guerrero;
-non terminal lista_partidas;
-non terminal condicion;
-non terminal condicion_and;
-non terminal condicion_not;
-non terminal condicion_base;
-non terminal comparacion;
-non terminal valor_numerico;
-non terminal estado_entero;
-non terminal operador_comparacion;
+non terminal LinkedList<Estrategia> lista_estrategias;
+non terminal Estrategia estrategia;
+non terminal Estrategia estrategia_mago;
+non terminal Estrategia estrategia_guerrero;
+non terminal CuerpoEstrategia cuerpo_mago;
+non terminal CuerpoEstrategia cuerpo_guerrero;
+non terminal String accion;
+non terminal String accion_mago;
+non terminal String accion_guerrero;
+non terminal LinkedList<Regla> lista_reglas_mago;
+non terminal LinkedList<Regla> lista_reglas_guerrero;
+non terminal Regla regla_mago;
+non terminal Regla regla_guerrero;
+non terminal Regla regla_else_mago;
+non terminal Regla regla_else_guerrero;
+non terminal Condicion condicion;
+non terminal Condicion condicion_and;
+non terminal Condicion condicion_not;
+non terminal Condicion condicion_base;
+non terminal Condicion comparacion;
+non terminal Object valor_numerico;
+non terminal Object expresion_numerica;
+non terminal String estado_entero;
+non terminal String operador_comparacion;
 non terminal funcion_accion;
 non terminal funcion_lista;
 non terminal historial;
@@ -143,174 +153,301 @@ non terminal valor_accion;
 non terminal lista_acciones;
 non terminal elementos_acciones;
 non terminal valor_lista;
-non terminal expresion_numerica;
-non terminal partida;
-non terminal cuerpo_partida;
-non terminal jugadores;
-non terminal rondas;
-non terminal scoring;
-non terminal lista_scoring;
-non terminal bonuses;
-non terminal lista_bonuses;
-non terminal lista_acciones_mago;
-non terminal elementos_acciones_mago;
-non terminal lista_acciones_guerrero;
-non terminal elementos_acciones_guerrero;
-non terminal principal;
-non terminal cuerpo_principal;
-non terminal instruccion_run;
-non terminal lista_partidas_run;
+non terminal LinkedList<Partida> lista_partidas;
+non terminal Partida partida;
+non terminal CuerpoPartida cuerpo_partida;
+non terminal LinkedList<String> jugadores;
+non terminal Integer rondas;
+non terminal Scoring scoring;
+non terminal Scoring lista_scoring;
+non terminal Bonuses bonuses;
+non terminal Bonuses lista_bonuses;
+non terminal LinkedList<String> lista_acciones_mago;
+non terminal LinkedList<String> elementos_acciones_mago;
+non terminal LinkedList<String> lista_acciones_guerrero;
+non terminal LinkedList<String> elementos_acciones_guerrero;
+non terminal Principal cuerpo_principal;
+non terminal Principal principal;
+non terminal Principal instruccion_run;
+non terminal LinkedList<String> lista_partidas_run;
 
 start with inicio;
 
 inicio ::=
-      lista_estrategias
-      lista_partidas
-      principal
-;
+      lista_estrategias: estrategias
+      lista_partidas: partidas
+      principal: main
+      {:
+          System.out.println("===== ESTRATEGIAS CARGADAS =====");
 
+          for (Estrategia e : estrategias) {
+              System.out.println(e);
+          }
+          System.out.println("===== PARTIDAS CARGADAS =====");
+
+          for (Partida p : partidas) {
+              System.out.println(p);
+          }
+           System.out.println("===== MAIN =====");
+          System.out.println(main);
+      :}
+;
+/* ----------------------------------------ESTRATEGIAS */
 lista_estrategias ::=
-      lista_estrategias estrategia
-    | estrategia
-;
-
-lista_partidas ::=
-      lista_partidas partida
-    | partida
+      lista_estrategias: lista  estrategia: e
+        {:
+          lista.add(e);
+          RESULT = lista;
+        :}
+    | estrategia: e
+        {:
+          LinkedList<Estrategia> lista = new LinkedList<Estrategia>();
+          lista.add(e);
+          RESULT = lista;
+        :}
 ;
 
 estrategia ::=
-      estrategia_mago
-    | estrategia_guerrero
+      estrategia_mago: e        {: RESULT = e; :}
+    | estrategia_guerrero: e    {: RESULT = e; :}
 ;
 
 estrategia_mago ::=
-      MAGE ID LLAVE_A cuerpo_mago LLAVE_C
+      MAGE ID: id  LLAVE_A cuerpo_mago: cuerpo LLAVE_C
+            {:
+          RESULT = new Estrategia(
+              id,
+              "mage",
+              cuerpo.getAccionInicial(),
+              cuerpo.getReglas()
+          );
+      :}
 ;
 
 estrategia_guerrero ::=
-      WARRIOR ID LLAVE_A cuerpo_guerrero LLAVE_C
+      WARRIOR ID: id LLAVE_A cuerpo_guerrero: cuerpo LLAVE_C
+       {:
+          RESULT = new Estrategia(
+              id,
+              "warrior",
+              cuerpo.getAccionInicial(),
+              cuerpo.getReglas()
+          );
+      :}
 ;
 
 cuerpo_mago ::=
-      INITIAL DOS_PUNTOS accion_mago
+      INITIAL DOS_PUNTOS accion_mago : accionInicial
       RULES DOS_PUNTOS CORCHETE_A
-      lista_reglas_mago
-      regla_else_mago
+      lista_reglas_mago: reglas
+      regla_else_mago: reglaElse
       CORCHETE_C
+       {:
+          reglas.add(reglaElse);
+          RESULT = new CuerpoEstrategia(accionInicial, reglas);
+      :}
 ;
 
 cuerpo_guerrero ::=
-      INITIAL DOS_PUNTOS accion_guerrero
+      INITIAL DOS_PUNTOS accion_guerrero : accionInicial 
       RULES DOS_PUNTOS CORCHETE_A
-      lista_reglas_guerrero
-      regla_else_guerrero
+      lista_reglas_guerrero: reglas
+      regla_else_guerrero: reglaElse
       CORCHETE_C
+       {:
+          reglas.add(reglaElse);
+          RESULT = new CuerpoEstrategia(accionInicial, reglas);
+      :}
 ;
 
 accion ::=
-      accion_mago
-    | accion_guerrero
+      accion_mago : a       {: RESULT = a; :}
+    | accion_guerrero : a   {: RESULT = a; :}
 ;
 
 accion_mago ::=
-      ARCANE_BOLT
-    | FIREBALL
-    | MAGIC_BARRIER
-    | HEALING_RUNE
-    | MEDITATE
+       ARCANE_BOLT  {: RESULT = "ARCANE_BOLT"; :}
+    | FIREBALL      {: RESULT = "FIREBALL"; :}
+    | MAGIC_BARRIER {: RESULT = "MAGIC_BARRIER"; :}
+    | HEALING_RUNE  {: RESULT = "HEALING_RUNE"; :}
+    | MEDITATE      {: RESULT = "MEDITATE"; :}
 ;
 
 accion_guerrero ::=
-      SLASH
-    | HEAVY_STRIKE
-    | SHIELD_BLOCK
-    | WAR_CRY
-    | REST
+       SLASH        {: RESULT = "SLASH"; :}
+    | HEAVY_STRIKE  {: RESULT = "HEAVY_STRIKE"; :}
+    | SHIELD_BLOCK  {: RESULT = "SHIELD_BLOCK"; :}
+    | WAR_CRY       {: RESULT = "WAR_CRY"; :}
+    | REST          {: RESULT = "REST"; :}
 ;
 
 regla_mago ::=
-      IF condicion THEN accion_mago COMA
+      IF condicion: c THEN accion_mago: a COMA
+      {:
+          RESULT = new Regla(c, a, false);
+      :}
+      
 ;
 
 regla_guerrero ::=
-      IF condicion THEN accion_guerrero COMA
+      IF condicion: c THEN accion_guerrero: a COMA
+       {:
+          RESULT = new Regla(c, a, false);
+      :}
+      
 ;
 
 regla_else_mago ::=
-      ELSE accion_mago
+      ELSE accion_mago: a
+      {:
+          RESULT = new Regla(null, a, true);
+      :}
+      
 ;
 
 regla_else_guerrero ::=
-      ELSE accion_guerrero
+      ELSE accion_guerrero: a
+       {:
+          RESULT = new Regla(null, a, true);
+      :}
 ;
 
 lista_reglas_mago ::=
-      lista_reglas_mago regla_mago
-    | regla_mago
+      lista_reglas_mago: lista regla_mago: r
+      {:
+          lista.add(r);
+          RESULT = lista;
+      :}
+    | regla_mago: r
+      {:
+          LinkedList<Regla> lista = new LinkedList<Regla>();
+          lista.add(r);
+          RESULT = lista;
+      :}
 ;
 
 lista_reglas_guerrero ::=
-      lista_reglas_guerrero regla_guerrero
-    | regla_guerrero
+      lista_reglas_guerrero: lista regla_guerrero: r
+      {:
+          lista.add(r);
+          RESULT = lista;
+      :}
+    | regla_guerrero: r
+      {:
+          LinkedList<Regla> lista = new LinkedList<Regla>();
+          lista.add(r);
+          RESULT = lista;
+      :}
 ;
 
 condicion ::=
-      condicion OR condicion_and
-    | condicion_and
+      condicion: c1 OR condicion_and: c2
+      {:
+          RESULT = new Condicion(c1, "OR", c2);
+      :}
+    | condicion_and: c
+      {:
+          RESULT = c;
+      :}  
 ;
 
 condicion_and ::=
-      condicion_and AND condicion_not
-    | condicion_not
+      condicion_and: c1 AND condicion_not: c2
+       {:
+          RESULT = new Condicion(c1, "AND", c2);
+       :}
+    | condicion_not: c
+      {:
+          RESULT = c;
+      :}
 ;
 
 condicion_not ::=
-      NOT condicion_not
-    | condicion_base
+      NOT condicion_not: c
+      {:
+          RESULT = new Condicion(c, "NOT", null);
+      :}
+    | condicion_base: c
+       {:
+          RESULT = c;
+      :}
 ;
 
 condicion_base ::=
-      comparacion
-    | PAR_A condicion PAR_C
+      comparacion: c
+      {:
+          RESULT = c;
+      :}
+    | PAR_A condicion: c PAR_C
+      {:
+          RESULT = c;
+      :}
 ;
 
 operador_comparacion ::=
-      IGUAL_IGUAL
-    | DIFERENTE
-    | MAYOR
-    | MENOR
-    | MAYOR_IGUAL
-    | MENOR_IGUAL
+      IGUAL_IGUAL   {: RESULT = "=="; :}
+    | DIFERENTE     {: RESULT = "!="; :}
+    | MAYOR         {: RESULT = ">"; :}
+    | MENOR         {: RESULT = "<"; :}
+    | MAYOR_IGUAL   {: RESULT = ">="; :}
+    | MENOR_IGUAL   {: RESULT = "<="; :}
 ;
 
 estado_entero ::=
-      ROUND_NUMBER
-    | TOTAL_ROUNDS
-    | SELF_HEALTH
-    | OPPONENT_HEALTH
-    | SELF_RESOURCE
-    | OPPONENT_RESOURCE
-    | SELF_SCORE
-    | OPPONENT_SCORE
+      ROUND_NUMBER          {: RESULT = "ROUND_NUMBER"; :}
+    | TOTAL_ROUNDS          {: RESULT = "TOTAL_ROUNDS"; :}
+    | SELF_HEALTH           {: RESULT = "SELF_HEALTH"; :}
+    | OPPONENT_HEALTH       {: RESULT = "OPPONENT_HEALTH"; :}
+    | SELF_RESOURCE         {: RESULT = "SELF_RESOURCE"; :}
+    | OPPONENT_RESOURCE     {: RESULT = "OPPONENT_RESOURCE"; :}
+    | SELF_SCORE            {: RESULT = "SELF_SCORE"; :}
+    | OPPONENT_SCORE        {: RESULT = "OPPONENT_SCORE"; :}
 ;
 
 valor_numerico ::=
-      estado_entero
-    | ENTERO
-    | RANDOM
-    | DECIMAL
-    | funcion_entera
+      estado_entero: e      {: RESULT = e; :}  
+    | ENTERO: e             {: RESULT = e; :}
+    | RANDOM                {: RESULT = "RANDOM"; :}
+    | DECIMAL: d            {: RESULT = d; :}
+    | funcion_entera: f     {: RESULT = f; :}
 ;
 
 comparacion ::=
-      expresion_numerica operador_comparacion expresion_numerica
-    | valor_accion IGUAL_IGUAL valor_accion
-    | valor_accion DIFERENTE valor_accion
-    | valor_lista IGUAL_IGUAL valor_lista
-    | valor_lista DIFERENTE valor_lista
+      expresion_numerica: izq operador_comparacion: op expresion_numerica: der
+      {:
+          RESULT = new Condicion(izq, op, der);
+      :}
+    | valor_accion: izq IGUAL_IGUAL valor_accion: der
+      {:
+          RESULT = new Condicion(izq, "==", der);
+      :}
+
+    | valor_accion: izq DIFERENTE valor_accion: der
+      {:
+          RESULT = new Condicion(izq, "!=", der);
+      :}
+
+    | valor_lista: izq IGUAL_IGUAL valor_lista: der
+      {:
+          RESULT = new Condicion(izq, "==", der);
+      :}
+
+    | valor_lista: izq DIFERENTE valor_lista: der
+      {:
+          RESULT = new Condicion(izq, "!=", der);
+      :}
 ;
 
+expresion_numerica ::=
+      expresion_numerica: e1 MENOS valor_numerico: e2
+      {:
+          RESULT = "(" + e1 + " - " + e2 + ")";
+      :}
+    | valor_numerico: v
+      {:
+          RESULT = v;
+      :}
+;
 historial ::=
       SELF_HISTORY
     | OPPONENT_HISTORY
@@ -364,106 +501,211 @@ valor_lista ::=
     | funcion_lista
 ;
 
-expresion_numerica ::=
-      expresion_numerica MENOS valor_numerico
-    | valor_numerico
-;
+
+
 /* ----------------------------------------PARTIDAS */
 partida ::=
-      MATCH ID LLAVE_A
-      cuerpo_partida
+      MATCH ID: id LLAVE_A
+      cuerpo_partida: cuerpo
       LLAVE_C
+      {:
+          RESULT = new Partida(
+              id,
+              cuerpo.getJugadores().get(0),
+              cuerpo.getJugadores().get(1),
+              cuerpo.getRondas(),
+              cuerpo.getScoring(),
+              cuerpo.getBonuses()
+          );
+      :}
 ;
 
 cuerpo_partida ::=
-      jugadores
-      rondas
-      scoring
-      bonuses
+      jugadores: j
+      rondas: r
+      scoring: s
+      bonuses: b
+       {:
+          RESULT = new CuerpoPartida(
+              j,
+              r,
+              s,
+              b
+          );
+      :}
+;
+
+lista_partidas ::=
+      lista_partidas: lista partida: p
+       {:
+          lista.add(p);
+          RESULT = lista;
+      :}
+    | partida: p
+        {:
+          LinkedList<Partida> lista = new LinkedList<Partida>();
+          lista.add(p);
+          RESULT = lista;
+      :}
 ;
 
 jugadores ::=
       PLAYERS DOS_PUNTOS
       CORCHETE_A
-      ID COMA ID
+      ID: j1 COMA ID: j2
       CORCHETE_C
+      {:
+          LinkedList<String> jugadores = new LinkedList<String>();
+          jugadores.add(j1);
+          jugadores.add(j2);
+
+          RESULT = jugadores;
+      :}
 ;
 
 rondas ::=
-      ROUNDS DOS_PUNTOS ENTERO
+      ROUNDS DOS_PUNTOS ENTERO: r
+      {:
+          RESULT = r;
+      :}
 ;
 
 scoring ::=
       SCORING DOS_PUNTOS
       LLAVE_A
-      lista_scoring
+      lista_scoring: s
       LLAVE_C
+      {:
+          RESULT = s;
+      :}
 ;
 
 bonuses ::=
       BONUSES DOS_PUNTOS
       LLAVE_A
-      lista_bonuses
+      lista_bonuses:b
       LLAVE_C
+      {:
+          RESULT = b;
+      :}
 ;
 
 lista_scoring ::=
-      DAMAGE_POINT DOS_PUNTOS ENTERO COMA
-      HEALING_POINT DOS_PUNTOS ENTERO COMA
-      SUCCESSFUL_DEFENSE DOS_PUNTOS ENTERO COMA
-      VICTORY_BONUS DOS_PUNTOS ENTERO COMA
-      FAILED_ACTION_PENALTY DOS_PUNTOS ENTERO
+      DAMAGE_POINT DOS_PUNTOS ENTERO: damage COMA
+      HEALING_POINT DOS_PUNTOS ENTERO: healing COMA
+      SUCCESSFUL_DEFENSE DOS_PUNTOS ENTERO: defense COMA
+      VICTORY_BONUS DOS_PUNTOS ENTERO: victory COMA
+      FAILED_ACTION_PENALTY DOS_PUNTOS ENTERO: penalty
+      {:
+          RESULT = new Scoring(
+              damage,
+              healing,
+              defense,
+              victory,
+              penalty
+          );
+      :}
 ;
 
 lista_bonuses ::=
-      MAGE_COMBO DOS_PUNTOS lista_acciones_mago COMA
-      MAGE_COMBO_POINTS DOS_PUNTOS ENTERO COMA
-      WARRIOR_COMBO DOS_PUNTOS lista_acciones_guerrero COMA
-      WARRIOR_COMBO_POINTS DOS_PUNTOS ENTERO COMA
-      LOW_HEALTH_VICTORY DOS_PUNTOS ENTERO
+      MAGE_COMBO DOS_PUNTOS lista_acciones_mago: mageCombo COMA
+      MAGE_COMBO_POINTS DOS_PUNTOS ENTERO: magePoints COMA
+      WARRIOR_COMBO DOS_PUNTOS lista_acciones_guerrero: warriorCombo COMA
+      WARRIOR_COMBO_POINTS DOS_PUNTOS ENTERO: warriorPoints COMA
+      LOW_HEALTH_VICTORY DOS_PUNTOS ENTERO: lowHealth
+      {:
+          RESULT = new Bonuses(
+              mageCombo,
+              magePoints,
+              warriorCombo,
+              warriorPoints,
+              lowHealth
+          );
+      :}
 ;
 
 lista_acciones_mago ::=
-      CORCHETE_A elementos_acciones_mago CORCHETE_C
+      CORCHETE_A elementos_acciones_mago: lista CORCHETE_C
+      {:
+          RESULT = lista;
+      :}
 ;
 
 elementos_acciones_mago ::=
-      elementos_acciones_mago COMA accion_mago
-    | accion_mago
+      elementos_acciones_mago: lista COMA accion_mago: a
+      {:
+          lista.add(a);
+          RESULT = lista;
+      :}
+    | accion_mago: a
+      {:
+          LinkedList<String> lista = new LinkedList<String>();
+          lista.add(a);
+          RESULT = lista;
+      :}
 ;
 
 lista_acciones_guerrero ::=
-      CORCHETE_A elementos_acciones_guerrero CORCHETE_C
+      CORCHETE_A elementos_acciones_guerrero: lista CORCHETE_C
+      {:
+          RESULT = lista;
+      :}
 ;
 
 elementos_acciones_guerrero ::=
-      elementos_acciones_guerrero COMA accion_guerrero
-    | accion_guerrero
+      elementos_acciones_guerrero: lista COMA accion_guerrero: a
+       {:
+          lista.add(a);
+          RESULT = lista;
+       :}
+    | accion_guerrero: a
+       {:
+          LinkedList<String> lista = new LinkedList<String>();
+          lista.add(a);
+          RESULT = lista;
+      :}
 ;
 /* ----------------------------------------MAIN */
 principal ::=
       MAIN LLAVE_A
-      cuerpo_principal
+      cuerpo_principal:p
       LLAVE_C
+      {:
+          RESULT = p;
+      :}
 ;
 
 cuerpo_principal ::=
-      cuerpo_principal instruccion_run
-    | instruccion_run
+     instruccion_run:p
+      {:
+          RESULT = p;
+      :}
 ;
 
 instruccion_run ::=
       RUN
       CORCHETE_A
-      lista_partidas_run
+      lista_partidas_run: partidas
       CORCHETE_C
       WITH
       LLAVE_A
-      SEED DOS_PUNTOS ENTERO
+      SEED DOS_PUNTOS ENTERO: seed
       LLAVE_C
+       {:
+          RESULT = new Principal(partidas, seed);
+      :}
 ;
 
 lista_partidas_run ::=
-      lista_partidas_run COMA ID
-    | ID
+      lista_partidas_run: lista COMA ID: id
+       {:
+          lista.add(id);
+          RESULT = lista;
+      :}
+    | ID: id
+      {:
+          LinkedList<String> lista = new LinkedList<String>();
+          lista.add(id);
+          RESULT = lista;
+      :}
 ;

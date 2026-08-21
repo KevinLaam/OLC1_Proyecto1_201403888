@@ -1,0 +1,43 @@
+
+mage Merlin {
+    initial: ARCANE_BOLT
+    rules: [
+        if self_resource <= 20 then MEDITATE,
+        else ARCANE_BOLT
+    ]
+}
+
+warrior Ragnar {
+    initial: SLASH
+    rules: [
+        if self_resource <= 20 then REST,
+        else SLASH
+    ]
+}
+
+match DueloInicial {
+    players: [Merlin, Ragnar]
+    rounds: 3
+
+    scoring: {
+        damage_point: 10,
+        healing_point: 5,
+        successful_defense: 3,
+        victory_bonus: 20,
+        failed_action_penalty: 2
+    }
+
+    bonuses: {
+        mage_combo: [ARCANE_BOLT, FIREBALL],
+        mage_combo_points: 15,
+        warrior_combo: [SLASH, HEAVY_STRIKE],
+        warrior_combo_points: 15,
+        low_health_victory: 10
+    }
+}
+
+main {
+    run [DueloInicial] with {
+        seed: 123
+    }
+}
