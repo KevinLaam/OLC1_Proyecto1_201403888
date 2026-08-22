@@ -723,51 +723,51 @@ public class Lexer implements java_cup.runtime.Scanner {
     public static LinkedList<Token> listaTokens = new LinkedList<>();
     public static LinkedList<ErrorToken> listaErrores = new LinkedList<>();
 
-  
+    private Symbol symbol(int type) {
         private void registrarToken(int type) {
 
-        Token token = new Token(
-            nombreToken(type),
-            yytext(),
-            yyline + 1,
-            yycolumn + 1
+    Token token = new Token(
+        nombreToken(type),
+        yytext(),
+        yyline + 1,
+        yycolumn + 1
+    );
+
+    listaTokens.add(token);
+    }
+
+    private Symbol symbol(int type) {
+
+        registrarToken(type);
+
+        return new Symbol(
+            type,
+            yyline,
+            yycolumn,
+            yytext()
         );
+    }
 
-        listaTokens.add(token);
+    private Symbol symbol(int type, Object value) {
+
+        registrarToken(type);
+
+        return new Symbol(
+            type,
+            yyline,
+            yycolumn,
+            value
+        );
+    }
+
+    private String nombreToken(int type) {
+
+        if (type >= 0 && type < sym.terminalNames.length) {
+            return sym.terminalNames[type];
         }
 
-        private Symbol symbol(int type) {
-
-            registrarToken(type);
-
-            return new Symbol(
-                type,
-                yyline,
-                yycolumn,
-                yytext()
-            );
-        }
-
-        private Symbol symbol(int type, Object value) {
-
-            registrarToken(type);
-
-            return new Symbol(
-                type,
-                yyline,
-                yycolumn,
-                value
-            );
-        }
-
-        private String nombreToken(int type) {
-
-            if (type >= 0 && type < sym.terminalNames.length) {
-                return sym.terminalNames[type];
-            }
-
-            return "DESCONOCIDO";
-        }
+        return "DESCONOCIDO";
+    }
 
 
 

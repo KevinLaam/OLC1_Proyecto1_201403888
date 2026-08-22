@@ -15,6 +15,7 @@ import modelo.Scoring;
 import modelo.Bonuses;
 import modelo.CuerpoPartida;
 import modelo.Principal;
+import modelo.ErrorToken;
 import java_cup.runtime.XMLElement;
 
 /** CUP v0.11b 20150326 (SVN rev 63) generated parser.
@@ -455,6 +456,55 @@ public class Parser extends java_cup.runtime.lr_parser {
 
   /** <code>error</code> Symbol index. */
   public int error_sym() {return 1;}
+
+
+
+
+    @Override
+    public void syntax_error(java_cup.runtime.Symbol s) {
+
+        String descripcion;
+
+        if (s.value != null) {
+            descripcion = "Token inesperado: " + s.value;
+        } else {
+            descripcion = "Error sintactico cerca del token actual";
+        }
+
+        Lexer.listaErrores.add(
+            new ErrorToken(
+                "SINTACTICO",
+                descripcion,
+                s.left + 1,
+                s.right + 1
+            )
+        );
+    }
+
+    @Override
+    public void unrecovered_syntax_error(java_cup.runtime.Symbol s)
+            throws Exception {
+
+        String descripcion;
+
+        if (s.value != null) {
+            descripcion = "No se pudo recuperar del error cerca de: " + s.value;
+        } else {
+            descripcion = "No se pudo recuperar del error sintactico";
+        }
+
+        Lexer.listaErrores.add(
+            new ErrorToken(
+                "SINTACTICO",
+                descripcion,
+                s.left + 1,
+                s.right + 1
+            )
+        );
+
+        throw new Exception(descripcion);
+    }
+
 
 
 /** Cup generated class to encapsulate user supplied action code.*/

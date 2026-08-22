@@ -1,6 +1,9 @@
 package analizadores;
 
 import java_cup.runtime.Symbol;
+import java.util.LinkedList;
+import modelo.Token;
+import modelo.ErrorToken;
 
 %%
 
@@ -12,14 +15,55 @@ import java_cup.runtime.Symbol;
 %column
 
 %{
+    
+    public static LinkedList<Token> listaTokens = new LinkedList<>();
+    public static LinkedList<ErrorToken> listaErrores = new LinkedList<>();
 
-    private Symbol symbol(int type) {
-        return new Symbol(type, yyline + 1, yycolumn + 1, yytext());
-    }
+  
+        private void registrarToken(int type) {
 
-    private Symbol symbol(int type, Object value) {
-        return new Symbol(type, yyline + 1, yycolumn + 1, value);
-    }
+        Token token = new Token(
+            nombreToken(type),
+            yytext(),
+            yyline + 1,
+            yycolumn + 1
+        );
+
+        listaTokens.add(token);
+        }
+
+        private Symbol symbol(int type) {
+
+            registrarToken(type);
+
+            return new Symbol(
+                type,
+                yyline,
+                yycolumn,
+                yytext()
+            );
+        }
+
+        private Symbol symbol(int type, Object value) {
+
+            registrarToken(type);
+
+            return new Symbol(
+                type,
+                yyline,
+                yycolumn,
+                value
+            );
+        }
+
+        private String nombreToken(int type) {
+
+            if (type >= 0 && type < sym.terminalNames.length) {
+                return sym.terminalNames[type];
+            }
+
+            return "DESCONOCIDO";
+        }
 
 %}
 
@@ -157,13 +201,13 @@ COMENTARIO_MULTI = "/*"([^*]|\*+[^*/])*\*+"/"
 {ENTERO}    {    return symbol(sym.ENTERO,Integer.parseInt(yytext()));}
 
 {ID_INVALIDO} {
-    System.out.println(
-        "Error léxico: identificador inválido '"
-        + yytext()
-        + "' en línea "
-        + (yyline + 1)
-        + ", columna "
-        + (yycolumn + 1)
+    listaErrores.add(
+        new ErrorToken(
+            "LEXICO",
+            "Identificador invalido: " + yytext(),
+            yyline + 1,
+            yycolumn + 1
+        )
     );
 }
 
@@ -178,12 +222,12 @@ COMENTARIO_MULTI = "/*"([^*]|\*+[^*/])*\*+"/"
 /* ---------- ERROR LEXICO ---------- */
 
 . {
-    System.out.println(
-        "Error léxico: carácter no reconocido '"
-        + yytext()
-        + "' en línea "
-        + (yyline + 1)
-        + ", columna "
-        + (yycolumn + 1)
+    listaErrores.add(
+        new ErrorToken(
+            "LEXICO",
+            "Caracter no reconocido: " + yytext(),
+            yyline + 1,
+            yycolumn + 1
+        )
     );
 }

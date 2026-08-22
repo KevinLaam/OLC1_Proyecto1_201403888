@@ -7,7 +7,7 @@ mage Merlin {
     ]
 }
 
-warrior Ragnar {
+warrior Ragnar  {
     initial: SLASH
     rules: [
         if self_resource <= 20 then REST,

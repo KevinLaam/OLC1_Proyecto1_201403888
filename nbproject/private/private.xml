@@ -3,12 +3,13 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Usuario/Documents/NetBeansProjects/OLC1_Proyecto1_201403888/src/analizadores/Lexer.flex</file>
-            <file>file:/C:/Users/Usuario/Documents/NetBeansProjects/OLC1_Proyecto1_201403888/build.xml</file>
             <file>file:/C:/Users/Usuario/Documents/NetBeansProjects/OLC1_Proyecto1_201403888/src/analizadores/Parser.cup</file>
             <file>file:/C:/Users/Usuario/Documents/NetBeansProjects/OLC1_Proyecto1_201403888/prueba.btl</file>
+            <file>file:/C:/Users/Usuario/Documents/NetBeansProjects/OLC1_Proyecto1_201403888/src/modelo/Token.java</file>
+            <file>file:/C:/Users/Usuario/Documents/NetBeansProjects/OLC1_Proyecto1_201403888/src/modelo/ErrorToken.java</file>
+            <file>file:/C:/Users/Usuario/Documents/NetBeansProjects/OLC1_Proyecto1_201403888/src/analizadores/Lexer.flex</file>
             <file>file:/C:/Users/Usuario/Documents/NetBeansProjects/OLC1_Proyecto1_201403888/src/olc1_proyecto1_201403888/OLC1_Proyecto1_201403888.java</file>
-            <file>file:/C:/Users/Usuario/Documents/NetBeansProjects/OLC1_Proyecto1_201403888/src/modelo/Estrategia.java</file>
+            <file>file:/C:/Users/Usuario/Documents/NetBeansProjects/OLC1_Proyecto1_201403888/src/interfaz/FramePrincipal.java</file>
         </group>
     </open-files>
 </project-private>
