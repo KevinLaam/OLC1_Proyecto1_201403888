@@ -10,6 +10,7 @@ import modelo.Bonuses;
 import modelo.CuerpoPartida;
 import modelo.Principal;
 import modelo.ErrorToken;
+import modelo.Programa;
 
 parser code {:
 
@@ -37,25 +38,9 @@ parser code {:
     @Override
     public void unrecovered_syntax_error(java_cup.runtime.Symbol s)
             throws Exception {
-
-        String descripcion;
-
-        if (s.value != null) {
-            descripcion = "No se pudo recuperar del error cerca de: " + s.value;
-        } else {
-            descripcion = "No se pudo recuperar del error sintactico";
-        }
-
-        Lexer.listaErrores.add(
-            new ErrorToken(
-                "SINTACTICO",
-                descripcion,
-                s.left + 1,
-                s.right + 1
-            )
-        );
-
-        throw new Exception(descripcion);
+            
+             throw new Exception("No se pudo continuar con el analisis sintactico.");
+       
     }
 
 :};
@@ -168,7 +153,7 @@ terminal String ID;
                  NO TERMINALES
    ========================================= */
 
-non terminal inicio;
+non terminal Programa inicio;
 
 non terminal LinkedList<Estrategia> lista_estrategias;
 non terminal Estrategia estrategia;
@@ -194,15 +179,15 @@ non terminal Object valor_numerico;
 non terminal Object expresion_numerica;
 non terminal String estado_entero;
 non terminal String operador_comparacion;
-non terminal funcion_accion;
-non terminal funcion_lista;
-non terminal historial;
-non terminal fuente_historial;
-non terminal funcion_entera;
-non terminal valor_accion;
-non terminal lista_acciones;
-non terminal elementos_acciones;
-non terminal valor_lista;
+non terminal String funcion_accion;
+non terminal String funcion_lista;
+non terminal String historial;
+non terminal String fuente_historial;
+non terminal String funcion_entera;
+non terminal String valor_accion;
+non terminal String lista_acciones;
+non terminal String elementos_acciones;
+non terminal String valor_lista;
 non terminal LinkedList<Partida> lista_partidas;
 non terminal Partida partida;
 non terminal CuerpoPartida cuerpo_partida;
@@ -228,18 +213,24 @@ inicio ::=
       lista_partidas: partidas
       principal: main
       {:
-          System.out.println("===== ESTRATEGIAS CARGADAS =====");
 
-          for (Estrategia e : estrategias) {
-              System.out.println(e);
-          }
-          System.out.println("===== PARTIDAS CARGADAS =====");
+         RESULT = new Programa(
+              estrategias,
+              partidas,
+              main
+          );
+          //System.out.println("===== ESTRATEGIAS CARGADAS =====");
 
-          for (Partida p : partidas) {
-              System.out.println(p);
-          }
-           System.out.println("===== MAIN =====");
-          System.out.println(main);
+          //for (Estrategia e : estrategias) {
+            //  System.out.println(e);
+          //}
+          //System.out.println("===== PARTIDAS CARGADAS =====");
+
+          //for (Partida p : partidas) {
+            //  System.out.println(p);
+          //}
+           //System.out.println("===== MAIN =====");
+          //System.out.println(main);
       :}
 ;
 /* ----------------------------------------ESTRATEGIAS */
@@ -296,6 +287,19 @@ cuerpo_mago ::=
           reglas.add(reglaElse);
           RESULT = new CuerpoEstrategia(accionInicial, reglas);
       :}
+      | INITIAL DOS_PUNTOS error
+      RULES DOS_PUNTOS CORCHETE_A
+      lista_reglas_mago:reglas
+      regla_else_mago:reglaElse
+      CORCHETE_C
+      {:
+          reglas.add(reglaElse);
+
+          RESULT = new CuerpoEstrategia(
+              null,
+              reglas
+          );
+      :}
 ;
 
 cuerpo_guerrero ::=
@@ -307,6 +311,19 @@ cuerpo_guerrero ::=
        {:
           reglas.add(reglaElse);
           RESULT = new CuerpoEstrategia(accionInicial, reglas);
+      :}
+      | INITIAL DOS_PUNTOS error
+      RULES DOS_PUNTOS CORCHETE_A
+      lista_reglas_guerrero:reglas
+      regla_else_guerrero:reglaElse
+      CORCHETE_C
+      {:
+          reglas.add(reglaElse);
+
+          RESULT = new CuerpoEstrategia(
+              null,
+              reglas
+          );
       :}
 ;
 
@@ -336,6 +353,12 @@ regla_mago ::=
       {:
           RESULT = new Regla(c, a, false);
       :}
+/*----------------RECUPERACION-------------------*/
+
+       | error COMA
+      {:
+          RESULT = null;
+      :}
       
 ;
 
@@ -343,6 +366,11 @@ regla_guerrero ::=
       IF condicion: c THEN accion_guerrero: a COMA
        {:
           RESULT = new Regla(c, a, false);
+      :}
+/*----------------RECUPERACION-------------------*/
+       | error COMA
+      {:
+          RESULT = null;
       :}
       
 ;
@@ -365,13 +393,17 @@ regla_else_guerrero ::=
 lista_reglas_mago ::=
       lista_reglas_mago: lista regla_mago: r
       {:
-          lista.add(r);
+          if (r != null){
+            lista.add(r);
+    }
           RESULT = lista;
       :}
     | regla_mago: r
       {:
           LinkedList<Regla> lista = new LinkedList<Regla>();
-          lista.add(r);
+          if (r != null){
+            lista.add(r);
+            }
           RESULT = lista;
       :}
 ;
@@ -379,13 +411,17 @@ lista_reglas_mago ::=
 lista_reglas_guerrero ::=
       lista_reglas_guerrero: lista regla_guerrero: r
       {:
-          lista.add(r);
+           if (r != null){
+            lista.add(r);
+    }
           RESULT = lista;
       :}
     | regla_guerrero: r
       {:
           LinkedList<Regla> lista = new LinkedList<Regla>();
-          lista.add(r);
+          if (r != null){
+            lista.add(r);
+            }
           RESULT = lista;
       :}
 ;
@@ -500,55 +536,105 @@ expresion_numerica ::=
 ;
 historial ::=
       SELF_HISTORY
+      {:
+          RESULT = "self_history";
+      :}
+
     | OPPONENT_HISTORY
+      {:
+          RESULT = "opponent_history";
+      :}
 ;
 
 funcion_accion ::=
-      GET_MOVE PAR_A historial COMA ENTERO PAR_C
-    |
-      LAST_MOVE PAR_A historial PAR_C
+        GET_MOVE PAR_A historial:h COMA ENTERO:n PAR_C
+      {:
+          RESULT = "GET_MOVE:" + h + ":" + n;
+      :}
+
+    | LAST_MOVE PAR_A historial:h PAR_C
+      {:
+          RESULT = "LAST_MOVE:" + h;
+      :}
 ;
 
 funcion_lista ::=
       GET_LAST_N_MOVES
       PAR_A
-      historial
+      historial:h
       COMA
-      ENTERO
+      ENTERO:n
       PAR_C
+      {:
+          RESULT = "GET_LAST_N_MOVES:" + h + ":" + n;
+      :}
 ;
 
 fuente_historial ::=
-      historial
-    | funcion_lista
+       historial:h
+      {:
+          RESULT = h;
+      :}
+
+    | funcion_lista:f
+      {:
+          RESULT = f;
+      :}
 ;
 
 funcion_entera ::=
       GET_MOVES_COUNT
       PAR_A
-      fuente_historial
+      fuente_historial:h
       COMA
-      accion
+      accion:a
       PAR_C
+      {:
+          RESULT = "GET_MOVES_COUNT:" + h + ":" + a;
+      :}
 ;
 
 valor_accion ::=
-      accion
-    | funcion_accion
+      accion:a
+      {:
+          RESULT = a;
+      :}
+
+    | funcion_accion:f
+      {:
+          RESULT = f;
+      :}
 ;
 
 lista_acciones ::=
-      CORCHETE_A elementos_acciones CORCHETE_C
+      CORCHETE_A elementos_acciones:e CORCHETE_C
+      {:
+          RESULT = "LISTA:" + e;
+      :}
 ;
 
 elementos_acciones ::=
-      elementos_acciones COMA accion
-    | accion
+      elementos_acciones:lista COMA accion:a
+      {:
+          RESULT = lista + "," + a;
+      :}
+
+    | accion:a
+      {:
+          RESULT = a;
+      :}
 ;
 
 valor_lista ::=
-      lista_acciones
-    | funcion_lista
+      lista_acciones:l
+      {:
+          RESULT = l;
+      :}
+
+    | funcion_lista:f
+      {:
+          RESULT = f;
+      :}
 ;
 
 

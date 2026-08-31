@@ -6,6 +6,8 @@ package interfaz;
 import analizadores.Lexer;
 import analizadores.Parser;
 
+import modelo.ErrorToken;
+
 import java.io.StringReader;
 import javax.swing.JFrame;
 import java.awt.BorderLayout;
@@ -21,6 +23,7 @@ import javax.swing.JTextArea;
 import java.io.File;
 import java.io.FileReader;
 import java.io.BufferedReader;
+import java.io.FileWriter;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -28,6 +31,13 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+
+import java_cup.runtime.Symbol;
+import modelo.Programa;
+
+import modelo.Batalla;
+import modelo.Partida;
+import modelo.Estrategia;
 /**
  *
  * @author Usuario
@@ -43,6 +53,10 @@ public class FramePrincipal extends JFrame{
     private JButton btnAbrir;
     private JButton btnAnalizar;
     private JButton btnLimpiar;
+    private JButton btnNuevo;
+    private JButton btnGuardar;
+    //para apertura y lectura de archivos y crear nuevo
+    private File archivoActual;
     
     public FramePrincipal() {
 
@@ -60,7 +74,12 @@ public class FramePrincipal extends JFrame{
         btnAbrir = new JButton("Abrir .btl");
         btnAnalizar = new JButton("Analizar");
         btnLimpiar = new JButton("Limpiar");
+        btnNuevo = new JButton("Nuevo");
+        btnGuardar = new JButton("Guardar");
+        
         btnAnalizar.addActionListener(e -> analizar());
+        btnNuevo.addActionListener(e -> nuevoArchivo());
+        btnGuardar.addActionListener(e -> guardarArchivo());
 
         JPanel panelBotones = new JPanel(
                 new FlowLayout(FlowLayout.LEFT)
@@ -69,6 +88,8 @@ public class FramePrincipal extends JFrame{
         panelBotones.add(btnAbrir);
         panelBotones.add(btnAnalizar);
         panelBotones.add(btnLimpiar);
+        panelBotones.add(btnNuevo);
+        panelBotones.add(btnGuardar);
 
         // ---------------- EDITOR ----------------
         editor = new JTextArea();
@@ -154,10 +175,10 @@ public class FramePrincipal extends JFrame{
 
            if (resultado == JFileChooser.APPROVE_OPTION) {
 
-               File archivo = selector.getSelectedFile();
+               archivoActual = selector.getSelectedFile();
 
                try (BufferedReader br =
-                       new BufferedReader(new FileReader(archivo))) {
+                       new BufferedReader(new FileReader(archivoActual))) {
 
                    editor.setText("");
 
@@ -169,7 +190,7 @@ public class FramePrincipal extends JFrame{
 
                    consola.setText(
                            "Archivo cargado: "
-                           + archivo.getName()
+                           + archivoActual.getName()
                            + "\n"
                    );
 
@@ -185,6 +206,98 @@ public class FramePrincipal extends JFrame{
                }
            }
        }
+    
+    private void nuevoArchivo() {
+
+        editor.setText("");
+        
+
+        archivoActual = null;
+
+        consola.setText("Nuevo archivo listo para editar.\n");
+    }
+    
+    private void guardarArchivo() {
+
+        try {
+
+            // Si es un archivo nuevo, pedir ubicación y nombre
+            if (archivoActual == null) {
+
+                JFileChooser selector = new JFileChooser();
+
+                FileNameExtensionFilter filtro =
+                        new FileNameExtensionFilter(
+                                "Archivos Battle Language (*.btl)",
+                                "btl"
+                        );
+
+                selector.setFileFilter(filtro);
+
+                int resultado =
+                        selector.showSaveDialog(this);
+
+                if (resultado != JFileChooser.APPROVE_OPTION) {
+                    return;
+                }
+
+                archivoActual = selector.getSelectedFile();
+
+                // Agregar extensión .btl si no la escribió
+                if (!archivoActual.getName()
+                        .toLowerCase()
+                        .endsWith(".btl")) {
+
+                    archivoActual =
+                            new File(
+                                    archivoActual.getAbsolutePath()
+                                    + ".btl"
+                            );
+                }
+            }
+            //para validar si el archivo que se modifica se va a reemplazar por el anterior
+            if (archivoActual.exists()) {
+
+                int respuesta = JOptionPane.showConfirmDialog(
+                        this,
+                        "El archivo ya existe.\n¿Desea reemplazarlo?",
+                        "Confirmar reemplazo",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+                if (respuesta != JOptionPane.YES_OPTION) {
+                    archivoActual = null;
+                    return;
+                }
+            }
+            
+            
+
+            // Guardar el contenido actual del editor
+            try (FileWriter escritor =
+                    new FileWriter(archivoActual)) {
+
+                escritor.write(editor.getText());
+            }
+
+            consola.setText(
+                    "Archivo guardado correctamente: "
+                    + archivoActual.getName()
+                    + "\n"
+            );
+
+        } catch (Exception ex) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "No se pudo guardar el archivo:\n"
+                    + ex.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
 
     private void limpiar() {
 
@@ -214,10 +327,170 @@ public class FramePrincipal extends JFrame{
             Lexer lexer = new Lexer(
                     new StringReader(entrada)
             );
-
+            
             Parser parser = new Parser(lexer);
+            
+            Symbol resultado = parser.parse();
 
-            parser.parse();
+            Programa programa = null;
+
+            if (resultado != null && resultado.value instanceof Programa) {
+                programa = (Programa) resultado.value;
+            }
+            
+            if (programa != null) {
+
+                System.out.println(
+                        "Estrategias cargadas: "
+                        + programa.getEstrategias().size()
+                );
+
+                System.out.println(
+                        "Partidas cargadas: "
+                        + programa.getPartidas().size()
+                );
+                
+                // Obtener la primera partida solicitada desde MAIN
+            String nombrePartida =
+                    programa.getPrincipal()
+                            .getPartidas()
+                            .get(0);
+
+            System.out.println(
+                    "Partida solicitada desde main: "
+                    + nombrePartida
+            );
+
+            // Buscar la partida
+            Partida partida =
+                    programa.buscarPartida(nombrePartida);
+
+            if (partida == null) {
+                
+                String descripcion =
+                "La partida '"
+                + nombrePartida
+                + "' no existe.";
+                
+                /*
+                System.out.println(
+                        "ERROR: La partida '"
+                        + nombrePartida
+                        + "' no existe."
+                );
+                */
+                 System.out.println(
+                        "ERROR: " + descripcion
+                );
+
+                Lexer.listaErrores.add(
+                        new ErrorToken(
+                                "SEMANTICO",
+                                descripcion,
+                                0,
+                                0
+                        )
+                );
+
+
+            } else {
+
+                System.out.println(
+                        "Partida encontrada: "
+                        + partida.getNombre()
+                );
+
+                // Buscar las estrategias de ambos jugadores
+                Estrategia estrategia1 =
+                        programa.buscarEstrategia(
+                                partida.getJugador1()
+                        );
+
+                Estrategia estrategia2 =
+                        programa.buscarEstrategia(
+                                partida.getJugador2()
+                        );
+
+                if (estrategia1 == null) {
+                    /*
+                    System.out.println(
+                            "ERROR: No existe la estrategia "
+                            + partida.getJugador1()
+                    );
+                    */
+                    String descripcion =
+                            "No existe la estrategia '"
+                            + partida.getJugador1()
+                            + "'.";
+
+                    System.out.println(
+                            "ERROR: " + descripcion
+                    );
+
+                    Lexer.listaErrores.add(
+                            new ErrorToken(
+                                    "SEMANTICO",
+                                    descripcion,
+                                    0,
+                                    0
+                            )
+                    );
+                    
+
+                } else if (estrategia2 == null) {
+                    /*    
+                    System.out.println(
+                            "ERROR: No existe la estrategia "
+                            + partida.getJugador2()
+                    );
+                    */
+                    String descripcion =
+                            "No existe la estrategia '"
+                            + partida.getJugador2()
+                            + "'.";
+
+                    System.out.println(
+                            "ERROR: " + descripcion
+                    );
+
+                    Lexer.listaErrores.add(
+                            new ErrorToken(
+                                    "SEMANTICO",
+                                    descripcion,
+                                    0,
+                                    0
+                            )
+                    );
+
+                } else {
+
+                    System.out.println(
+                            "Jugador 1 encontrado: "
+                            + estrategia1.getNombre()
+                    );
+
+                    System.out.println(
+                            "Jugador 2 encontrado: "
+                            + estrategia2.getNombre()
+                    );
+
+                    // Crear la batalla
+                    Batalla batalla = new Batalla(
+                            partida,
+                            estrategia1,
+                            estrategia2,
+                            programa.getPrincipal().getSeed()
+                    );
+
+                    // Primera ejecución
+                    batalla.iniciar();
+                }
+            }
+                        }
+
+            //Parser parser = new Parser(lexer);
+
+            //parser.parse();
 
         } catch (Exception ex) {
 
@@ -237,6 +510,7 @@ public class FramePrincipal extends JFrame{
         // CONTAR ERRORES POR TIPO
         int erroresLexicos = 0;
         int erroresSintacticos = 0;
+        int erroresSemanticos = 0;
 
         for (modelo.ErrorToken error : Lexer.listaErrores) {
 
@@ -246,6 +520,9 @@ public class FramePrincipal extends JFrame{
 
             if (error.getTipo().equals("SINTACTICO")) {
                 erroresSintacticos++;
+            }
+            if (error.getTipo().equalsIgnoreCase("SEMANTICO")) {
+                erroresSemanticos++;
             }
         }
 
@@ -270,6 +547,12 @@ public class FramePrincipal extends JFrame{
         salida.append(
                 "Errores sintacticos: "
                 + erroresSintacticos
+                + "\n"
+        );
+        
+        salida.append(
+                "Errores semanticos: "
+                + erroresSemanticos
                 + "\n"
         );
 
