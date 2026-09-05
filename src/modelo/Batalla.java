@@ -9,6 +9,7 @@ import java.util.Random;
  *
  * @author Usuario
  */
+
 public class Batalla {
     private Partida partida;
     private Estrategia estrategiaJugador1;
@@ -19,6 +20,7 @@ public class Batalla {
     private Random randomJugador1;
     private Random randomJugador2;
     private int seed;
+    private StringBuilder salida = new StringBuilder();
 
     public Batalla(
             Partida partida,
@@ -45,24 +47,25 @@ public class Batalla {
     }
 
     public void iniciar() {
- 
-        System.out.println("===== INICIO DE BATALLA =====");
-        System.out.println("Partida: " + partida.getNombre());
-        System.out.println("Rondas: " + partida.getRondas());
-        System.out.println("Seed: " + seed);
+        salida.setLength(0);
+        
+        imprimir("===== INICIO DE BATALLA =====");
+        imprimir("Partida: " + partida.getNombre());
+        imprimir("Rondas: " + partida.getRondas());
+        imprimir("Seed: " + seed);
         randomJugador1 = new Random(seed);
         randomJugador2 = new Random(seed + 1);
+        imprimir("");
+
+        imprimir("Jugador 1:");
+        imprimir(jugador1.toString());
+
         System.out.println();
 
-        System.out.println("Jugador 1:");
-        System.out.println(jugador1);
+        imprimir("Jugador 2:");
+        imprimir(jugador2.toString());
 
-        System.out.println();
-
-        System.out.println("Jugador 2:");
-        System.out.println(jugador2);
-
-        System.out.println("============================");
+        imprimir("============================");
         
         
         // EJECUTAR RONDAS
@@ -77,7 +80,7 @@ public class Batalla {
             //jugador1.setDefendiendo(false);
             //jugador2.setDefendiendo(false);
             
-            System.out.println(
+            imprimir(
                     "===== RONDA " + ronda + " ====="
             );
 
@@ -137,15 +140,9 @@ public class Batalla {
             valorRandom1 = randomJugador1.nextDouble();
             valorRandom2 = randomJugador2.nextDouble();
             
-             System.out.println(
-            "Random " + jugador1.getNombre()
-                    + ": " + valorRandom1
-            );
+            imprimir("Random " + jugador1.getNombre() + ": " + valorRandom1);
 
-            System.out.println(
-                    "Random " + jugador2.getNombre()
-                    + ": " + valorRandom2
-            );
+            imprimir("Random " + jugador2.getNombre() + ": " + valorRandom2);
             
             accionJugador1 = seleccionarAccion(
                     estrategiaJugador1,
@@ -168,13 +165,13 @@ public class Batalla {
          //}
       }
             
-            System.out.println(
+            imprimir(
                     jugador1.getNombre()
                     + " selecciona: "
                     + accionJugador1
             );
 
-            System.out.println(
+            imprimir(
                     jugador2.getNombre()
                     + " selecciona: "
                     + accionJugador2
@@ -269,7 +266,7 @@ public class Batalla {
                         );
                     }
                     
-                    System.out.println(
+                    imprimir(
                             "Empate de prioridad -> "
                             + jugador1.getNombre()
                             + " actua primero por velocidad"
@@ -318,19 +315,19 @@ public class Batalla {
             if (jugador1.getVida() <= 0
                     || jugador2.getVida() <= 0) {
 
-                System.out.println(
+                imprimir(
                         "La batalla termino por derrota directa."
                 );
 
                 break;
             }
 
-            System.out.println(
+            imprimir(
                 "Estado despues de la ronda:"
             );
 
-            System.out.println(jugador1);
-            System.out.println(jugador2);
+            imprimir(jugador1.toString());
+            imprimir(jugador2.toString());
             
             // Los efectos defensivos duran solamente esta ronda
             jugador1.setDefendiendo(false);
@@ -347,7 +344,7 @@ public class Batalla {
                   //      estrategiaJugador2.getAccionInicial();
             
 
-            System.out.println();
+            imprimir("");
         }
         /*
         jugador1.setScore(30);
@@ -364,14 +361,14 @@ public class Batalla {
         //jugador1.setVida(20);
         //jugador2.setVida(30);
         determinarGanador();
-        System.out.println(
-                "===== ESTADO FINAL TEMPORAL ====="
+        imprimir(
+                "===== ESTADO FINAL ====="
         );
 
-        System.out.println(jugador1);
-        System.out.println(jugador2);
+        imprimir(jugador1.toString());
+        imprimir(jugador2.toString());
 
-        System.out.println(
+        imprimir(
                 "==============================="
         );
     
@@ -1564,13 +1561,24 @@ public class Batalla {
     
     private int calcularDanoMagico(EstadoJugador atacante, EstadoJugador defensor, int poderAccion) {
 
-    int dano =
-            poderAccion
-            + atacante.getPoderMagico()
-            - defensor.getResistenciaMagica();
+        int dano =
+                poderAccion
+                + atacante.getPoderMagico()
+                - defensor.getResistenciaMagica();
 
-    return Math.max(1, dano);
-}
+        return Math.max(1, dano);
+    }
+    
+    private void imprimir(String texto) {
+
+        System.out.println(texto);
+        salida.append(texto).append("\n");
+    }
+    
+    public String getSalida() {
+        return salida.toString();
+    }
+    
     
     
     

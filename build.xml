@@ -11,7 +11,6 @@
     <description>Builds, tests, and runs the project OLC1_Proyecto1_201403888.</description>
     <import file="nbproject/build-impl.xml"/>
    
-    
     <target name="-pre-compile">
 
     <echo message="========== Generando Lexer con JFlex =========="/>
@@ -27,13 +26,10 @@
         outdir="${basedir}/src/analizadores"
         verbose="true"
     />
-    
      <!-- ============================= -->
     <!-- GENERAR PARSER CON CUP -->
     <!-- ============================= -->
-
     <echo message="========== Generando Parser con CUP =========="/>
-
     <java
         classname="java_cup.Main"
         fork="true"
@@ -55,8 +51,6 @@
         <arg value="${basedir}/src/analizadores"/>
 
         <arg value="${basedir}/src/analizadores/Parser.cup"/>
-
     </java>
-
     </target>
 </project>

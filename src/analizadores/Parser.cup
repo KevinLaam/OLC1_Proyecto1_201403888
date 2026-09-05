@@ -11,6 +11,7 @@ import modelo.CuerpoPartida;
 import modelo.Principal;
 import modelo.ErrorToken;
 import modelo.Programa;
+import modelo.InstruccionRun;
 
 parser code {:
 
@@ -201,9 +202,9 @@ non terminal LinkedList<String> lista_acciones_mago;
 non terminal LinkedList<String> elementos_acciones_mago;
 non terminal LinkedList<String> lista_acciones_guerrero;
 non terminal LinkedList<String> elementos_acciones_guerrero;
-non terminal Principal cuerpo_principal;
+non terminal LinkedList<InstruccionRun> cuerpo_principal;
 non terminal Principal principal;
-non terminal Principal instruccion_run;
+non terminal InstruccionRun instruccion_run;
 non terminal LinkedList<String> lista_partidas_run;
 
 start with inicio;
@@ -803,33 +804,49 @@ elementos_acciones_guerrero ::=
 ;
 /* ----------------------------------------MAIN */
 principal ::=
-      MAIN LLAVE_A
-      cuerpo_principal:p
-      LLAVE_C
-      {:
-          RESULT = p;
-      :}
+    MAIN LLAVE_A
+    cuerpo_principal:runs
+    LLAVE_C
+    {:
+        RESULT = new Principal(runs);
+    :}
 ;
 
 cuerpo_principal ::=
-     instruccion_run:p
-      {:
-          RESULT = p;
-      :}
+    cuerpo_principal:lista
+    instruccion_run:r
+    {:
+        lista.add(r);
+        RESULT = lista;
+    :}
+
+    | instruccion_run:r
+    {:
+        LinkedList<InstruccionRun> lista =
+                new LinkedList<InstruccionRun>();
+
+        lista.add(r);
+
+        RESULT = lista;
+    :}
 ;
 
 instruccion_run ::=
-      RUN
-      CORCHETE_A
-      lista_partidas_run: partidas
-      CORCHETE_C
-      WITH
-      LLAVE_A
-      SEED DOS_PUNTOS ENTERO: seed
-      LLAVE_C
-       {:
-          RESULT = new Principal(partidas, seed);
-      :}
+    RUN
+    CORCHETE_A
+    lista_partidas_run:partidas
+    CORCHETE_C
+    WITH
+    LLAVE_A
+    SEED DOS_PUNTOS ENTERO:seed
+    LLAVE_C
+    {:
+        RESULT = new InstruccionRun(
+                partidas,
+                seed
+        );
+    :}
+
 ;
 
 lista_partidas_run ::=

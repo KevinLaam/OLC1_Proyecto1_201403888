@@ -10,27 +10,22 @@ import java.util.LinkedList;
  * @author Usuario
  */
 public class Principal {
-    private LinkedList<String> partidas;
-    private int seed;
+    private LinkedList<InstruccionRun> runs;
 
-    public Principal(LinkedList<String> partidas, int seed) {
-        this.partidas = partidas;
-        this.seed = seed;
+    public Principal(
+            LinkedList<InstruccionRun> runs) {
+
+        this.runs = runs;
     }
 
-    public LinkedList<String> getPartidas() {
-        return partidas;
-    }
-
-    public int getSeed() {
-        return seed;
+    public LinkedList<InstruccionRun> getRuns() {
+        return runs;
     }
 
     @Override
     public String toString() {
         return "Principal{" +
-                "partidas=" + partidas +
-                ", seed=" + seed +
+                "runs=" + runs +
                 '}';
     }
     

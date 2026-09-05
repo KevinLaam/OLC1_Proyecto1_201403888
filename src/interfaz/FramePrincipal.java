@@ -38,6 +38,7 @@ import modelo.Programa;
 import modelo.Batalla;
 import modelo.Partida;
 import modelo.Estrategia;
+import modelo.InstruccionRun;
 /**
  *
  * @author Usuario
@@ -60,7 +61,7 @@ public class FramePrincipal extends JFrame{
     
     public FramePrincipal() {
 
-        setTitle("Battle Language - OLC1");
+        setTitle("Battle Script - OLC1");
         setSize(1100, 700);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -320,7 +321,9 @@ public class FramePrincipal extends JFrame{
         // LIMPIAR RESULTADOS DE ANALISIS ANTERIORES
         Lexer.listaTokens.clear();
         Lexer.listaErrores.clear();
-
+        
+        String salidaBatalla = "";
+        
         try {
 
             // EL LEXER TOMA EL TEXTO DIRECTAMENTE DEL EDITOR
@@ -351,56 +354,54 @@ public class FramePrincipal extends JFrame{
                 );
                 
                 // Obtener la primera partida solicitada desde MAIN
+                /*
             String nombrePartida =
                     programa.getPrincipal()
                             .getPartidas()
                             .get(0);
-
-            System.out.println(
-                    "Partida solicitada desde main: "
-                    + nombrePartida
-            );
-
-            // Buscar la partida
-            Partida partida =
-                    programa.buscarPartida(nombrePartida);
-
-            if (partida == null) {
-                
-                String descripcion =
-                "La partida '"
-                + nombrePartida
-                + "' no existe.";
-                
-                /*
-                System.out.println(
-                        "ERROR: La partida '"
-                        + nombrePartida
-                        + "' no existe."
-                );
                 */
-                 System.out.println(
-                        "ERROR: " + descripcion
+             for (InstruccionRun run
+                    : programa.getPrincipal().getRuns()) {
+
+                for (String nombrePartida
+                        : run.getPartidas()) {
+
+                System.out.println(
+                        "Partida solicitada desde main: "
+                        + nombrePartida
                 );
 
-                Lexer.listaErrores.add(
-                        new ErrorToken(
-                                "SEMANTICO",
-                                descripcion,
-                                0,
-                                0
-                        )
-                );
+                Partida partida =
+                        programa.buscarPartida(nombrePartida);
 
+                if (partida == null) {
 
-            } else {
+                    String descripcion =
+                            "La partida '"
+                            + nombrePartida
+                            + "' no existe.";
+
+                    System.out.println(
+                            "ERROR: " + descripcion
+                    );
+
+                    Lexer.listaErrores.add(
+                            new ErrorToken(
+                                    "SEMANTICO",
+                                    descripcion,
+                                    0,
+                                    0
+                            )
+                    );
+
+                    continue;
+                }
 
                 System.out.println(
                         "Partida encontrada: "
                         + partida.getNombre()
                 );
 
-                // Buscar las estrategias de ambos jugadores
                 Estrategia estrategia1 =
                         programa.buscarEstrategia(
                                 partida.getJugador1()
@@ -412,12 +413,7 @@ public class FramePrincipal extends JFrame{
                         );
 
                 if (estrategia1 == null) {
-                    /*
-                    System.out.println(
-                            "ERROR: No existe la estrategia "
-                            + partida.getJugador1()
-                    );
-                    */
+
                     String descripcion =
                             "No existe la estrategia '"
                             + partida.getJugador1()
@@ -435,64 +431,58 @@ public class FramePrincipal extends JFrame{
                                     0
                             )
                     );
-                    
 
-                } else if (estrategia2 == null) {
-                    /*    
-                    System.out.println(
-                            "ERROR: No existe la estrategia "
-                            + partida.getJugador2()
-                    );
-                    */
-                    String descripcion =
-                            "No existe la estrategia '"
-                            + partida.getJugador2()
-                            + "'.";
-
-                    System.out.println(
-                            "ERROR: " + descripcion
-                    );
-
-                    Lexer.listaErrores.add(
-                            new ErrorToken(
-                                    "SEMANTICO",
-                                    descripcion,
-                                    0,
-                                    0
-                            )
-                    );
-
-                } else {
-
-                    System.out.println(
-                            "Jugador 1 encontrado: "
-                            + estrategia1.getNombre()
-                    );
-
-                    System.out.println(
-                            "Jugador 2 encontrado: "
-                            + estrategia2.getNombre()
-                    );
-
-                    // Crear la batalla
-                    Batalla batalla = new Batalla(
-                            partida,
-                            estrategia1,
-                            estrategia2,
-                            programa.getPrincipal().getSeed()
-                    );
-
-                    // Primera ejecución
-                    batalla.iniciar();
+                    continue;
                 }
+
+                if (estrategia2 == null) {
+
+                    String descripcion =
+                            "No existe la estrategia '"
+                            + partida.getJugador2()
+                            + "'.";
+
+                    System.out.println(
+                            "ERROR: " + descripcion
+                    );
+
+                    Lexer.listaErrores.add(
+                            new ErrorToken(
+                                    "SEMANTICO",
+                                    descripcion,
+                                    0,
+                                    0
+                            )
+                    );
+
+                    continue;
+                }
+
+                System.out.println(
+                        "Jugador 1 encontrado: "
+                        + estrategia1.getNombre()
+                );
+
+                System.out.println(
+                        "Jugador 2 encontrado: "
+                        + estrategia2.getNombre()
+                );
+
+                Batalla batalla = new Batalla(
+                        partida,
+                        estrategia1,
+                        estrategia2,
+                        run.getSeed()
+                );
+
+                batalla.iniciar();
+
+                // IMPORTANTE: acumular, no reemplazar
+                salidaBatalla += "\n" + batalla.getSalida();
+             }
+             }
             }
-                        }
-
-            //Parser parser = new Parser(lexer);
-
-            //parser.parse();
-
-        } catch (Exception ex) {
+             } catch (Exception ex) {
 
             // No reemplazamos la consola aquí,
             // porque queremos mostrar el resumen de errores abajo.
@@ -567,6 +557,12 @@ public class FramePrincipal extends JFrame{
             salida.append(
                     "El archivo contiene errores.\n"
             );
+        }
+        
+        if (!salidaBatalla.isEmpty()) {
+
+            salida.append("\n");
+            salida.append(salidaBatalla);
         }
 
         consola.setText(salida.toString());
